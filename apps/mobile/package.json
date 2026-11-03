@@ -1,0 +1,30 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "expo": "~58.0.22",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "@circle/design-tokens": "workspace:*",
+    "@circle/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
+    "typescript": "6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --type-aware .",
+    "build": "expo export --platform ios --platform android --output-dir dist",
+    "dev": "expo start"
+  },
+  "private": true
+}

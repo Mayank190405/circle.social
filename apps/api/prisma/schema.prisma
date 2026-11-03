@@ -1,0 +1,104 @@
+// Circle.social — Initial database foundation
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum MembershipRole {
+  MEMBER
+  MODERATOR
+  OWNER
+}
+
+model User {
+  id          String       @id @default(uuid()) @db.Uuid
+  handle      String       @unique @db.VarChar(40)
+  status      UserStatus   @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+
+  memberships CommunityMembership[]
+  passkeys Passkey[]
+  sessions Session[]
+  auditEvents AuditEvent[]
+
+  @@map("users")
+}
+
+model Community {
+  id          String       @id @default(uuid()) @db.Uuid
+  slug        String       @unique @db.VarChar(60)
+  name        String       @db.VarChar(100)
+  description String?      @db.VarChar(500)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+
+  memberships CommunityMembership[]
+
+  @@map("communities")
+}
+
+model CommunityMembership {
+  userId      String         @db.Uuid
+  communityId String         @db.Uuid
+  role        MembershipRole @default(MEMBER)
+  joinedAt    DateTime       @default(now()) @db.Timestamptz(3)
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community   Community      @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, communityId])
+  @@index([communityId, joinedAt])
+  @@map("community_memberships")
+}
+
+
+model Passkey {
+  id String @id
+  userId String @db.Uuid
+  publicKey Bytes
+  counter BigInt @default(0)
+  transports String[]
+  deviceType String @db.VarChar(30)
+  backedUp Boolean @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("passkeys")
+}
+
+model Session {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique @db.VarChar(64)
+  userId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model AuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  userId String? @db.Uuid
+  kind String @db.VarChar(60)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([userId, createdAt])
+  @@map("audit_events")
+}

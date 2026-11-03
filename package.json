@@ -1,0 +1,27 @@
+{
+  "name": "circle-social",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "clean": "turbo clean",
+    "env:setup": "node infrastructure/scripts/setup-env.mjs",
+    "infra:up": "docker compose --env-file infrastructure/docker/.env -f infrastructure/docker/docker-compose.yml up -d --wait --wait-timeout 60",
+    "infra:down": "docker compose --env-file infrastructure/docker/.env -f infrastructure/docker/docker-compose.yml down",
+    "test:integration": "turbo run test:integration",
+    "security:secrets": "node infrastructure/scripts/check-secrets.mjs"
+  },
+  "devDependencies": {
+    "turbo": "2.11.10",
+    "typescript": "6.0.3"
+  }
+}
